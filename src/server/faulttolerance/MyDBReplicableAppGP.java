@@ -87,7 +87,6 @@ public class MyDBReplicableAppGP implements Replicable {
 	 */
 	public MyDBReplicableAppGP(String[] args) throws IOException {
 		// TODO: setup connection to the data store and keyspace
-		// throw new RuntimeException("Not yet implemented");
 		
 		// Connect to the cluster and keyspace
 		
@@ -110,7 +109,6 @@ public class MyDBReplicableAppGP implements Replicable {
 	@Override
 	public boolean execute(Request request, boolean b) {
 		// TODO: submit request to data store
-		
 		return this.execute(request);
 	}
 
@@ -130,7 +128,6 @@ public class MyDBReplicableAppGP implements Replicable {
 				ResultSet resultSet = session.execute(requestValue);
 				// Check if the query was successful
 			       if (resultSet.wasApplied()) {
-			    	   	//checkpoint("chkpt1");
 			    		return true;
 					
 			        } else {
@@ -158,7 +155,6 @@ public class MyDBReplicableAppGP implements Replicable {
 		// TODO:
 		
         ResultSet resultSet = session.execute("SELECT * FROM grade");
-        // System.out.println("RESULT SET FETCHED");
         
         StringBuilder formattedData = new StringBuilder();
 
@@ -171,8 +167,6 @@ public class MyDBReplicableAppGP implements Replicable {
             String formattedRow = String.format("%d|%s;", id, events); // Using ';' as row delimiter and '|' as column delimiter
             formattedData.append(formattedRow);
         }
-        // System.out.println("Checkpt returns: "+formattedData.toString());
-        //restore("res1",formattedData.toString());
         return formattedData.toString();
 	}
 
@@ -187,19 +181,16 @@ public class MyDBReplicableAppGP implements Replicable {
 	public boolean restore(String s, String dataString) {
 	    try {
 	    	
-	    	// System.out.println("Received data string is: "+dataString);
-	    	
 	        // Check if the string data is empty
 	        if (dataString.isEmpty() || dataString.equals("{}")) {
 	            return true;
 	        } else {
-	            // session.execute("TRUNCATE grade");
-	            // PreparedStatement insertStatement = session.prepare("INSERT INTO grade (id, events) VALUES (?, ?)");
 	            
 	            // Split the string into individual rows
 	            String[] rows = dataString.split(";");
 	            
 	            // Process and insert each row into the table
+	            
 	            for (String row : rows) {
 	                String[] parts = row.split("\\|");
 	                if (parts.length < 2) {
@@ -211,7 +202,6 @@ public class MyDBReplicableAppGP implements Replicable {
 	                String events = parts[1];
 
 	                if (events.isEmpty()) {
-	                    System.out.println("Restoring id: " + id + " with an empty events column.");
 	                    session.execute(insertStatement.bind(id, Collections.emptyList()));
 	                } else {
 	                    String[] eventsArray = events.substring(1, events.length() - 1).split(",");
@@ -220,8 +210,6 @@ public class MyDBReplicableAppGP implements Replicable {
 	                            .map(str -> str.isEmpty() ? 0 : Integer.parseInt(str))
 	                            .collect(Collectors.toList());
 
-	                    System.out.println("Restoring id: " + id);
-	                    System.out.println("Restoring event: " + eventsList.toString());
 	                    session.execute(insertStatement.bind(id, eventsList));
 	                }
 	            }
